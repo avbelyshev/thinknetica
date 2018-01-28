@@ -11,8 +11,8 @@ c = gets.to_f
 cathetus1, cathetus2, hypotenuse = [a, b, c].sort
 
 rectangular = hypotenuse**2 == (cathetus1**2 + cathetus2**2)
-isosceles = cathetus1 == cathetus2
-equilateral = isosceles && cathetus1 == hypotenuse
+isosceles = cathetus1 == cathetus2 || cathetus1 == hypotenuse || cathetus2 == hypotenuse
+equilateral = cathetus1 == cathetus2 && cathetus2 == hypotenuse
 
 result = "Треугольник "
 result += "прямоугольный" if rectangular
