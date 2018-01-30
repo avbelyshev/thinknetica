@@ -21,9 +21,9 @@ end
 
 puts "Ваши покупки:\n"
 
-basket.each do |name, params|
-  price = params[:price]
-  quantity = params[:quantity]
+basket.each do |name, product_params|
+  price = product_params[:price]
+  quantity = product_params[:quantity]
   puts "Наименование: #{name}"
   puts "Цена: #{price}"
   puts "Количество: #{quantity}"

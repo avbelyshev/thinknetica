@@ -1,8 +1,6 @@
 array = [0, 1]
 
-loop do
-  num = array[-1] + array[-2]
-  break if num > 100
+while (num = array[-1] + array[-2]) < 100
   array << num
 end
 
