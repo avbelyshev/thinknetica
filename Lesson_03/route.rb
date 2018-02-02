@@ -3,7 +3,6 @@ class Route
 
   def initialize(start, final)
     @stations = [start, final]
-    @route = @stations
   end
 
   def add_station(station)
@@ -11,6 +10,6 @@ class Route
   end
 
   def delete_station(station)
-    stations.delete(station) unless @route.include?(station)
+    stations.delete(station) unless [stations[0], stations[-1]].include?(station)
   end
 end

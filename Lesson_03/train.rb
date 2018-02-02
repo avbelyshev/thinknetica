@@ -1,6 +1,5 @@
 class Train
-  attr_reader :number, :type
-  attr_accessor :vagon_count, :speed, :route, :station_number
+  attr_reader :number, :type, :vagon_count, :speed, :route, :station_number
 
   def initialize(number, type, vagon_count = 0)
     @number = number
@@ -22,43 +21,47 @@ class Train
   end
 
   def delete_vagon
-    return if moving?
-    @vagon_count -= 1 if @vagon_count > 0
+    return if moving? || @vagon_count == 0
+    @vagon_count -= 1
   end
 
   def set_route(route)
-    current_station.send_train(self)
+    station_by_number&.send_train(self) unless route.nil?
 
     @route = route
-    @route.stations[0].add_train(self)
     @station_number = 0
+    station_by_number.add_train(self)
   end
 
   def move_forward
-    if next_station
-      current_station.send_train(self)
-      @station_number = next_station
-      current_station.add_train(self)
-    end
+    station_by_number&.send_train(self)
+    next_station&.add_train(self)
   end
 
   def move_back
-    if previous_station
-      current_station.send_train(self)
-      @station_number = previous_station
-      current_station.add_train(self)
-    end
+    station_by_number&.send_train(self)
+    previous_station&.add_train(self)
   end
 
-  def current_station
+  def station_by_number
+    route_check
+
     @route.stations[@station_number]
   end
 
   def next_station
-    @station_number + 1 unless @station_number == @route.stations.size - 1
+    return if @station_number == @route.stations.size - 1
+    @station_number += 1
+    station_by_number
   end
 
   def previous_station
-    @station_number - 1 unless @station_number == 0
+    return if @station_number == 0
+    @station_number -= 1
+    station_by_number
+  end
+
+  def route_check
+    raise "Маршрут не задан! Вызов метода запрещен." if route.nil?
   end
 end
