@@ -32,19 +32,19 @@ class Interface
       user_choice = gets.to_i
 
       case user_choice
-        when 1 create_station
-        when 2 create_train
-        when 3 create_route
-        when 4 add_station_to_route
-        when 5 delete_station_from_route
-        when 6 set_route_to_train
-        when 7 add_vagon_to_train
-        when 8 delete_vagon_from_train
-        when 9 move_train_forward
-        when 10 move_train_back
-        when 11 view_stations_list
-        when 12 view_trains_list_at_station
-        when 13 break
+        when 1 then create_station
+        when 2 then create_train
+        when 3 then create_route
+        when 4 then add_station_to_route
+        when 5 then delete_station_from_route
+        when 6 then set_route_to_train
+        when 7 then add_vagon_to_train
+        when 8 then delete_vagon_from_train
+        when 9 then move_train_forward
+        when 10 then move_train_back
+        when 11 then view_stations_list
+        when 12 then view_trains_list_at_station
+        when 13 then break
         else puts "В меню действий нет такого пункта."
       end
     end
@@ -144,20 +144,19 @@ class Interface
     station_num = station_select
 
     db_record.stations[station_num].trains.each do |train|
-      puts "№ #{train.number}. Тип - #{train.type}\n" # TODO type
-      number
+      puts "#{train.to_s}\n"
     end
   end
 
   def view_route_list
     db_record.routes.each.with_index(1) do |route, index|
-      puts "#{index}. #{route.stations[0].name} -> #{route.stations[-1].name}\n"
+      puts "#{index}. #{route.to_s}\n"
     end
   end
 
   def view_trains_list
     db_record.trains.each.with_index(1) do |train, index|
-      puts "#{index}. № #{train.number}. Тип - #{train.type}\n" # TODO type
+      puts "#{index}. #{train.to_s}\n"
     end
   end
 

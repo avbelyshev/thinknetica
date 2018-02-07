@@ -12,4 +12,8 @@ class Route
   def delete_station(station)
     stations.delete(station) unless [stations[0], stations[-1]].include?(station)
   end
+
+  def to_s
+    "#{stations[0].name} -> #{stations[-1].name}"
+  end
 end

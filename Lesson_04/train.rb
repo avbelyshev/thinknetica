@@ -4,6 +4,7 @@ class Train
   def initialize(number)
     @number = number
     @vagons = []
+    @speed = 0
   end
 
   def brake
@@ -26,7 +27,7 @@ class Train
   end
 
   def set_route(route)
-    current_station&.send_train(self)
+    current_station.send_train(self) unless @route.nil?
 
     @route = route
     @current_station_number = 0
@@ -35,16 +36,16 @@ class Train
 
   def move_forward
     return unless next_station_number
-    current_station&.send_train(self)
+    current_station.send_train(self)
     @current_station_number = next_station_number
-    next_station&.add_train(self)
+    next_station.add_train(self)
   end
 
   def move_back
     return unless previous_station_number
-    current_station&.send_train(self)
+    current_station.send_train(self)
     @current_station_number = previous_station_number
-    previous_station&.add_train(self)
+    previous_station.add_train(self)
   end
 
   def current_station
