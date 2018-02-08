@@ -57,6 +57,7 @@ class Interface
   def create_station
     puts "Создание станции.\n"
     puts "Введите название станции:\n"
+
     station_name = gets.chomp
 
     db_record.create_station(station_name)
@@ -65,56 +66,91 @@ class Interface
   def create_train
     puts "Создание поезда.\n"
     puts "Введите номер поезда:\n"
+
     train_num = gets.to_i
+    return if train_exists(train_num)
+
     puts "Выберите тип поезда (0 - пассажирский, 1 - грузовой):\n"
+
     train_type = gets.to_i
+    return unless correct_train_type(train_type)
 
     db_record.create_train(train_num, train_type)
   end
 
   def create_route
+    if db_record.stations.size < 2
+      puts "Для создания маршрута необходимо создать несколько станций."
+      return
+    end
+
     puts "Создание маршрута.\n"
 
     start = station_select(" начальную ")
+    return unless correct_station(start)
+
     final = station_select(" конечную ")
+    return unless correct_station(final)
+
+    if start == final
+      puts "Начальная и конечная точки маршрута должны быть разными."
+      return
+    end
 
     db_record.create_route(start, final)
   end
 
   def add_station_to_route
     puts "Добавление станции в маршрут.\n"
+
     route_num = route_select
+    return unless correct_route(route_num)
+
     station_num = station_select
+    return unless correct_station(station_num)
 
     db_record.add_station_to_route(route_num, station_num)
   end
 
   def delete_station_from_route
     puts "Удаление станции из маршрута.\n"
+
     route_num = route_select
+    return unless correct_route(route_num)
+
     station_num = station_select
+    return unless correct_station(station_num)
 
     db_record.delete_station_from_route(route_num, station_num)
   end
 
   def set_route_to_train
     puts "Назначение маршрута поезду.\n"
+
     train_num = train_select
+    return unless correct_train(train_num)
+
     route_num = route_select
+    return unless correct_route(route_num)
 
     db_record.set_route_to_train(train_num, route_num)
   end
 
   def add_vagon_to_train
     puts "Добавление вагона к поезду\n"
+
     train_num = train_select
+    return unless correct_train(train_num)
 
     db_record.add_vagon_to_train(train_num)
   end
 
   def delete_vagon_from_train
     puts "Отцепка вагона от поезда\n"
+
     train_num = train_select
+    return unless correct_train(train_num)
+
     vagon_num = vagon_select(train_num)
 
     db_record.delete_vagon_from_train(train_num, vagon_num)
@@ -122,19 +158,25 @@ class Interface
 
   def move_train_forward
     puts "Перемещение поезда вперед\n"
+
     train_num = train_select
+    return unless correct_train(train_num)
 
     db_record.move_train_forward(train_num)
   end
 
   def move_train_back
     puts "Перемещение поезда назад\n"
+
     train_num = train_select
+    return unless correct_train(train_num)
 
     db_record.move_train_back(train_num)
   end
 
   def view_stations_list
+    puts "Список станций:\n"
+
     db_record.stations.each.with_index(1) do |station, index|
       puts "#{index}. #{station.name}\n"
     end
@@ -142,8 +184,13 @@ class Interface
 
   def view_trains_list_at_station
     station_num = station_select
+    return unless correct_station(station_num)
 
-    db_record.stations[station_num].trains.each do |train|
+    station = db_record.stations[station_num]
+
+    puts "Поезда на станции #{station.name}:\n"
+
+    station.trains.each do |train|
       puts "#{train.to_s}\n"
     end
   end
@@ -185,5 +232,50 @@ class Interface
     end
 
     vagon_num = gets.to_i - 1
+  end
+
+  def train_exists(train_num)
+    if db_record.trains.select { |t| t.number == train_num }.empty?
+      false
+    else
+      puts "Поезд с данным номером уже есть."
+      true
+    end
+  end
+
+  def correct_station(station_num)
+    if db_record.stations[station_num].nil?
+      puts "Станция с данным номером не найдена."
+      false
+    else
+      true
+    end
+  end
+
+  def correct_route(route_num)
+    if db_record.routes[route_num].nil?
+      puts "Маршрут с данным номером не найден."
+      false
+    else
+      true
+    end
+  end
+
+  def correct_train_type(train_type)
+    if db_record.train_types[train_type].nil?
+      puts "Некорректный тип поезда."
+      false
+    else
+      true
+    end
+  end
+
+  def correct_train(train_num)
+    if db_record.trains[train_num].nil?
+      puts "Поезд с данным номером не найден."
+      false
+    else
+      true
+    end
   end
 end

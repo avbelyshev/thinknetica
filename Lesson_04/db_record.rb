@@ -7,6 +7,7 @@ require_relative 'cargo_vagon'
 
 class DBRecord
   TRAIN_TYPES = {0 => PassengerTrain, 1 => CargoTrain}
+
   attr_reader :stations, :routes, :trains
 
   def initialize()
@@ -57,5 +58,9 @@ class DBRecord
 
   def move_train_back(train_num)
     trains[train_num].move_back
+  end
+
+  def train_types
+    TRAIN_TYPES
   end
 end
