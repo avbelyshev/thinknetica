@@ -1,4 +1,4 @@
-require_relative "db_record"
+require_relative "storage"
 
 class Interface
 
@@ -18,8 +18,8 @@ class Interface
     "Выход"
   ]
 
-  def initialize(db_record)
-    @db_record = db_record
+  def initialize(storage)
+    @storage = storage
   end
 
   def open
@@ -52,7 +52,7 @@ class Interface
 
   private
 
-  attr_reader :db_record
+  attr_reader :storage
 
   def create_station
     puts "Создание станции.\n"
@@ -60,7 +60,7 @@ class Interface
 
     station_name = gets.chomp
 
-    db_record.create_station(station_name)
+    storage.create_station(station_name)
   end
 
   def create_train
@@ -68,28 +68,34 @@ class Interface
     puts "Введите номер поезда:\n"
 
     train_num = gets.to_i
-    return if train_exists(train_num)
+    if storage.train?(train_num)
+      puts "Поезд с данным номером уже есть."
+      return
+    end
 
     puts "Выберите тип поезда (0 - пассажирский, 1 - грузовой):\n"
 
     train_type = gets.to_i
-    return unless correct_train_type(train_type)
+    if storage.wrong_train_type?(train_type)
+      puts "Некорректный тип поезда."
+      return
+    end
 
-    db_record.create_train(train_num, train_type)
+    storage.create_train(train_num, train_type)
   end
 
   def create_route
-    if db_record.stations.size < 2
+    if storage.stations.size < 2
       puts "Для создания маршрута необходимо создать несколько станций."
       return
     end
 
     puts "Создание маршрута.\n"
 
-    start = station_select(" начальную ")
+    start = choose_item(storage.stations, "Выберите начальную станцию:\n")
     return unless correct_station(start)
 
-    final = station_select(" конечную ")
+    final = choose_item(storage.stations, "Выберите конечную станцию:\n")
     return unless correct_station(final)
 
     if start == final
@@ -97,154 +103,114 @@ class Interface
       return
     end
 
-    db_record.create_route(start, final)
+    storage.create_route(start, final)
   end
 
   def add_station_to_route
     puts "Добавление станции в маршрут.\n"
 
-    route_num = route_select
+    route_num = choose_item(storage.routes, "Выберите маршрут:\n")
     return unless correct_route(route_num)
 
-    station_num = station_select
+    station_num = choose_item(storage.stations, "Выберите станцию:\n")
     return unless correct_station(station_num)
 
-    db_record.add_station_to_route(route_num, station_num)
+    storage.add_station_to_route(route_num, station_num)
   end
 
   def delete_station_from_route
     puts "Удаление станции из маршрута.\n"
 
-    route_num = route_select
+    route_num = choose_item(storage.routes, "Выберите маршрут:\n")
     return unless correct_route(route_num)
 
-    station_num = station_select
+    station_num = choose_item(storage.stations, "Выберите станцию:\n")
     return unless correct_station(station_num)
 
-    db_record.delete_station_from_route(route_num, station_num)
+    storage.delete_station_from_route(route_num, station_num)
   end
 
   def set_route_to_train
     puts "Назначение маршрута поезду.\n"
 
-    train_num = train_select
+    train_num = choose_item(storage.trains, "Выберите поезд:\n")
     return unless correct_train(train_num)
 
-    route_num = route_select
+    route_num = choose_item(storage.routes, "Выберите маршрут:\n")
     return unless correct_route(route_num)
 
-    db_record.set_route_to_train(train_num, route_num)
+    storage.set_route_to_train(train_num, route_num)
   end
 
   def add_vagon_to_train
     puts "Добавление вагона к поезду\n"
 
-    train_num = train_select
+    train_num = choose_item(storage.trains, "Выберите поезд:\n")
     return unless correct_train(train_num)
 
-    db_record.add_vagon_to_train(train_num)
+    storage.add_vagon_to_train(train_num)
   end
 
   def delete_vagon_from_train
     puts "Отцепка вагона от поезда\n"
 
-    train_num = train_select
+    train_num = choose_item(storage.trains, "Выберите поезд:\n")
     return unless correct_train(train_num)
 
-    vagon_num = vagon_select(train_num)
+    vagon_num = choose_item(storage.trains[train_num].vagons, "Выберите вагон:\n")
 
-    db_record.delete_vagon_from_train(train_num, vagon_num)
+    storage.delete_vagon_from_train(train_num, vagon_num)
   end
 
   def move_train_forward
     puts "Перемещение поезда вперед\n"
 
-    train_num = train_select
+    train_num = choose_item(storage.trains, "Выберите поезд:\n")
     return unless correct_train(train_num)
 
-    db_record.move_train_forward(train_num)
+    storage.move_train_forward(train_num)
   end
 
   def move_train_back
     puts "Перемещение поезда назад\n"
 
-    train_num = train_select
+    train_num = choose_item(storage.trains, "Выберите поезд:\n")
     return unless correct_train(train_num)
 
-    db_record.move_train_back(train_num)
+    storage.move_train_back(train_num)
+  end
+
+  def view_collection(collection)
+    collection.each.with_index(1) do |item, index|
+      puts "#{index}. #{item}\n"
+    end
   end
 
   def view_stations_list
     puts "Список станций:\n"
 
-    db_record.stations.each.with_index(1) do |station, index|
-      puts "#{index}. #{station.name}\n"
-    end
+    view_collection(storage.stations)
   end
 
   def view_trains_list_at_station
-    station_num = station_select
+    station_num = choose_item(storage.stations, "Выберите станцию:\n")
     return unless correct_station(station_num)
 
-    station = db_record.stations[station_num]
+    station = storage.stations[station_num]
 
     puts "Поезда на станции #{station.name}:\n"
 
-    station.trains.each do |train|
-      puts "#{train.to_s}\n"
-    end
+    view_collection(station.trains)
   end
 
-  def view_route_list
-    db_record.routes.each.with_index(1) do |route, index|
-      puts "#{index}. #{route.to_s}\n"
-    end
-  end
-
-  def view_trains_list
-    db_record.trains.each.with_index(1) do |train, index|
-      puts "#{index}. #{train.to_s}\n"
-    end
-  end
-
-  def station_select(str = ' ')
-    puts "Выберите#{str}станцию:\n"
-    view_stations_list
-    station_num = gets.to_i - 1
-  end
-
-  def route_select
-    puts "Выберите маршрут:\n"
-    view_route_list
-    route_num = gets.to_i - 1
-  end
-
-  def train_select
-    puts "Выберите поезд:\n"
-    view_trains_list
-    train_num = gets.to_i - 1
-  end
-
-  def vagon_select(train_num)
-    puts "Выберите вагон:\n"
-    db_record.trains[train_num].vagons.each.with_index(1) do |vagon, index|
-      puts "#{index}\n"
-    end
-
-    vagon_num = gets.to_i - 1
-  end
-
-  def train_exists(train_num)
-    if db_record.trains.select { |t| t.number == train_num }.empty?
-      false
-    else
-      puts "Поезд с данным номером уже есть."
-      true
-    end
+  def choose_item(collection, display_message)
+    puts display_message
+    view_collection(collection)
+    item_num = gets.to_i - 1
   end
 
   def correct_station(station_num)
-    if db_record.stations[station_num].nil?
+    if storage.stations[station_num].nil?
       puts "Станция с данным номером не найдена."
       false
     else
@@ -253,7 +219,7 @@ class Interface
   end
 
   def correct_route(route_num)
-    if db_record.routes[route_num].nil?
+    if storage.routes[route_num].nil?
       puts "Маршрут с данным номером не найден."
       false
     else
@@ -261,17 +227,8 @@ class Interface
     end
   end
 
-  def correct_train_type(train_type)
-    if db_record.train_types[train_type].nil?
-      puts "Некорректный тип поезда."
-      false
-    else
-      true
-    end
-  end
-
   def correct_train(train_num)
-    if db_record.trains[train_num].nil?
+    if storage.trains[train_num].nil?
       puts "Поезд с данным номером не найден."
       false
     else

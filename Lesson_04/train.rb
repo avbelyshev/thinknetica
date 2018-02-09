@@ -16,8 +16,7 @@ class Train
   end
 
   def add_vagon(vagon)
-    return if moving?
-    return unless valid_vagon_type?(vagon)
+    return if moving? || !valid_vagon_type?(vagon)
     vagons << vagon
   end
 
@@ -69,5 +68,12 @@ class Train
 
   def previous_station_number
     @current_station_number - 1 unless @current_station_number == 0
+  end
+
+  def vagon_class
+  end
+
+  def valid_vagon_type?(vagon)
+    vagon.kind_of?(vagon_class)
   end
 end

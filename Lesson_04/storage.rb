@@ -5,8 +5,8 @@ require_relative 'cargo_train'
 require_relative 'passenger_vagon'
 require_relative 'cargo_vagon'
 
-class DBRecord
-  TRAIN_TYPES = {0 => PassengerTrain, 1 => CargoTrain}
+class Storage
+  TRAIN_TYPES = [PassengerTrain, CargoTrain]
 
   attr_reader :stations, :routes, :trains
 
@@ -62,5 +62,25 @@ class DBRecord
 
   def train_types
     TRAIN_TYPES
+  end
+
+  def train?(train_num)
+    trains.find { |t| t.number == train_num }
+  end
+
+  def wrong_train_type?(train_type)
+    train_types[train_type].nil?
+  end
+
+  def wrong_station?(station_num)
+    stations[station_num].nil?
+  end
+
+  def wrong_route?(route_num)
+    routes[route_num].nil?
+  end
+
+  def wrong_train?(train_num)
+    trains[train_num].nil?
   end
 end

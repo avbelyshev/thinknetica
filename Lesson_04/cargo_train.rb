@@ -9,10 +9,4 @@ class CargoTrain < Train
   def to_s
     "№ #{self.number}. Тип - Грузовой"
   end
-
-  private
-
-  def valid_vagon_type?(vagon)
-    vagon.kind_of?(CargoVagon)
-  end
 end

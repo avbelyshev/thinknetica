@@ -6,11 +6,11 @@ require_relative "cargo_train"
 require_relative "vagon"
 require_relative "passenger_vagon"
 require_relative "cargo_vagon"
-require_relative "db_record"
+require_relative "storage"
 require_relative "interface"
 
-db_record = DBRecord.new
+storage = Storage.new
 
-interface = Interface.new(db_record)
+interface = Interface.new(storage)
 
 interface.open
