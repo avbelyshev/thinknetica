@@ -7,10 +7,6 @@ class PassengerTrain < Train
     PassengerVagon
   end
 
-  def capacity_message
-    "Задайте кол-во мест в вагоне"
-  end
-
   def to_s
     "№ #{self.number}. Тип - Пассажирский. Кол-во вагонов: #{vagons.size}"
   end

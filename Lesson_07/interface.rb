@@ -157,7 +157,11 @@ class Interface
     train_num = choose_item(storage.trains, "Выберите поезд:\n")
     raise "Поезд с данным номером не найден." if storage.wrong_train?(train_num)
 
-    puts storage.trains[train_num].capacity_message
+    if storage.trains[train_num].is_a?(CargoTrain)
+      puts "Задайте объём вагона"
+    else
+      puts "Задайте кол-во мест в вагоне"
+    end
     capacity = gets.to_i
 
     storage.add_vagon_to_train(train_num, capacity)
@@ -191,8 +195,8 @@ class Interface
     vagon = storage.trains[train_num].vagons[vagon_num]
     if vagon.is_a?(CargoVagon)
       puts "Введите объём"
-      vol = gets.to_f
-      vagon.take_volume(vol)
+      volume = gets.to_f
+      vagon.take_volume(volume)
     else
       vagon.take_place
     end
@@ -222,7 +226,7 @@ class Interface
     puts e.message
   end
 
-  def view_collection(collection, &block)
+  def view_collection(collection)
     collection.each.with_index(1) do |item, index|
       puts "#{index}. #{item}\n"
       yield(item) if block_given?
@@ -233,7 +237,7 @@ class Interface
     puts "Список станций:\n"
 
     view_collection(storage.stations) do |station|
-      station.trains_selection { |train| puts "  #{train}\n" }
+      station.each_train { |train| puts "  #{train}\n" }
     end
   end
 
@@ -246,7 +250,7 @@ class Interface
     puts "Поезда на станции #{station.name}:\n"
 
     view_collection(station.trains) do |train|
-      train.vagons_selection { |vagon, num| puts "  #{num}. #{vagon}\n" }
+      train.each_vagon { |vagon, num| puts "  #{num}. #{vagon}\n" }
     end
   rescue RuntimeError => e
     puts e.message
@@ -256,7 +260,7 @@ class Interface
     train_num = choose_item(storage.trains, "Выберите поезд:\n")
     raise "Поезд с данным номером не найден." if storage.wrong_train?(train_num)
 
-    storage.trains[train_num].vagons_selection { |vagon, num| puts "  #{num}. #{vagon}\n" }
+    storage.trains[train_num].each_vagon { |vagon, num| puts "  #{num}. #{vagon}\n" }
   rescue RuntimeError => e
     puts e.message
   end
@@ -266,9 +270,9 @@ class Interface
 
     view_collection(storage.stations) do |station|
       puts "Поезда на станции #{station.name}:\n"
-      station.trains_selection do |train|
+      station.each_train do |train|
         puts "  #{train}\n"
-        train.vagons_selection { |vagon, num| puts "    #{num}. #{vagon}\n" }
+        train.each_vagon { |vagon, num| puts "    #{num}. #{vagon}\n" }
       end
     end
   end

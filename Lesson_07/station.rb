@@ -42,7 +42,7 @@ class Station
     false
   end
 
-  def trains_selection
+  def each_train
     trains.each.with_index(1) do |item, index|
       yield(item, index)
     end

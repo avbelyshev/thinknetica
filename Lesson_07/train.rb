@@ -83,7 +83,7 @@ class Train
     false
   end
 
-  def vagons_selection
+  def each_vagon
     vagons.each.with_index(1) do |item, index|
       yield(item, index)
     end
@@ -100,7 +100,7 @@ class Train
   end
 
   def vagon_class
-    NotImplementedError
+    raise NotImplementedError
   end
 
   def valid_vagon_type?(vagon)

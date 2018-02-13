@@ -4,6 +4,6 @@ class Vagon
   include Manufacturer
 
   def to_s
-    NotImplementedError
+    raise NotImplementedError
   end
 end
