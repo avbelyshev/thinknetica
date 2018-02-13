@@ -83,6 +83,12 @@ class Train
     false
   end
 
+  def vagons_selection
+    vagons.each.with_index(1) do |item, index|
+      yield(item, index)
+    end
+  end
+
   protected
 
   def next_station_number

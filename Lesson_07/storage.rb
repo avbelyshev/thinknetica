@@ -41,10 +41,10 @@ class Storage
     trains[train_num].set_route(routes[route_num])
   end
 
-  def add_vagon_to_train(train_num)
+  def add_vagon_to_train(train_num, capacity)
     train = trains[train_num]
     vagon_class = train.vagon_class
-    train.add_vagon(vagon_class.new)
+    train.add_vagon(vagon_class.new(capacity))
   end
 
   def delete_vagon_from_train(train_num, vagon_num)
@@ -82,5 +82,9 @@ class Storage
 
   def wrong_train?(train_num)
     trains[train_num].nil?
+  end
+
+  def wrong_vagon?(train_num, vagon_num)
+    trains[train_num].vagons[vagon_num].nil?
   end
 end

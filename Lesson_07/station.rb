@@ -42,6 +42,12 @@ class Station
     false
   end
 
+  def trains_selection
+    trains.each.with_index(1) do |item, index|
+      yield(item, index)
+    end
+  end
+
   protected
 
   def validate!

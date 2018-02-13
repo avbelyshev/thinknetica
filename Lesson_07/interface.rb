@@ -11,10 +11,13 @@ class Interface
     "Назначить маршрут поезду",
     "Добавить вагон к поезду",
     "Отцепить вагон от поезда",
+    "Занять место или объем в вагоне",
     "Переместить поезд вперед",
     "Переместить поезд назад",
     "Посмотреть список станций",
     "Посмотреть список поездов на станции",
+    "Посмотреть список вагонов поезда",
+    "Посмотреть список станций с поездами и вагонами",
     "Выход"
   ]
 
@@ -40,11 +43,14 @@ class Interface
         when 6 then set_route_to_train
         when 7 then add_vagon_to_train
         when 8 then delete_vagon_from_train
-        when 9 then move_train_forward
-        when 10 then move_train_back
-        when 11 then view_stations_list
-        when 12 then view_trains_list_at_station
-        when 13 then break
+        when 9 then take_space_in_vagon
+        when 10 then move_train_forward
+        when 11 then move_train_back
+        when 12 then view_stations_list
+        when 13 then view_trains_list_at_station
+        when 14 then view_vagons_list
+        when 15 then view_stations_list_with_trains
+        when 16 then break
         else puts "В меню действий нет такого пункта."
       end
     end
@@ -151,7 +157,10 @@ class Interface
     train_num = choose_item(storage.trains, "Выберите поезд:\n")
     raise "Поезд с данным номером не найден." if storage.wrong_train?(train_num)
 
-    storage.add_vagon_to_train(train_num)
+    puts storage.trains[train_num].capacity_message
+    capacity = gets.to_i
+
+    storage.add_vagon_to_train(train_num, capacity)
   rescue RuntimeError => e
     puts e.message
   end
@@ -163,8 +172,30 @@ class Interface
     raise "Поезд с данным номером не найден." if storage.wrong_train?(train_num)
 
     vagon_num = choose_item(storage.trains[train_num].vagons, "Выберите вагон:\n")
+    raise "Вагон с данным номером не найден." if storage.wrong_vagon?(train_num, vagon_num)
 
     storage.delete_vagon_from_train(train_num, vagon_num)
+  rescue RuntimeError => e
+    puts e.message
+  end
+
+  def take_space_in_vagon
+    puts "Занять место или объем в вагоне\n"
+
+    train_num = choose_item(storage.trains, "Выберите поезд:\n")
+    raise "Поезд с данным номером не найден." if storage.wrong_train?(train_num)
+
+    vagon_num = choose_item(storage.trains[train_num].vagons, "Выберите вагон:\n")
+    raise "Вагон с данным номером не найден." if storage.wrong_vagon?(train_num, vagon_num)
+
+    vagon = storage.trains[train_num].vagons[vagon_num]
+    if vagon.is_a?(CargoVagon)
+      puts "Введите объём"
+      vol = gets.to_f
+      vagon.take_volume(vol)
+    else
+      vagon.take_place
+    end
   rescue RuntimeError => e
     puts e.message
   end
@@ -191,16 +222,19 @@ class Interface
     puts e.message
   end
 
-  def view_collection(collection)
+  def view_collection(collection, &block)
     collection.each.with_index(1) do |item, index|
       puts "#{index}. #{item}\n"
+      yield(item) if block_given?
     end
   end
 
   def view_stations_list
     puts "Список станций:\n"
 
-    view_collection(storage.stations)
+    view_collection(storage.stations) do |station|
+      station.trains_selection { |train| puts "  #{train}\n" }
+    end
   end
 
   def view_trains_list_at_station
@@ -211,9 +245,32 @@ class Interface
 
     puts "Поезда на станции #{station.name}:\n"
 
-    view_collection(station.trains)
+    view_collection(station.trains) do |train|
+      train.vagons_selection { |vagon, num| puts "  #{num}. #{vagon}\n" }
+    end
   rescue RuntimeError => e
     puts e.message
+  end
+
+  def view_vagons_list
+    train_num = choose_item(storage.trains, "Выберите поезд:\n")
+    raise "Поезд с данным номером не найден." if storage.wrong_train?(train_num)
+
+    storage.trains[train_num].vagons_selection { |vagon, num| puts "  #{num}. #{vagon}\n" }
+  rescue RuntimeError => e
+    puts e.message
+  end
+
+  def view_stations_list_with_trains
+    puts "Список станций:\n"
+
+    view_collection(storage.stations) do |station|
+      puts "Поезда на станции #{station.name}:\n"
+      station.trains_selection do |train|
+        puts "  #{train}\n"
+        train.vagons_selection { |vagon, num| puts "    #{num}. #{vagon}\n" }
+      end
+    end
   end
 
   def choose_item(collection, display_message)
