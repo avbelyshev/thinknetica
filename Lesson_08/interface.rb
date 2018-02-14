@@ -83,7 +83,6 @@ class Interface
     raise 'Некорректный тип поезда.' if storage.wrong_train_type?(train_type)
 
     storage.create_train(train_num, train_type)
-    # puts "Создан поезд #{Train::find(train_num)}"
     puts "Создан поезд #{storage.trains.last}"
   rescue RuntimeError => e
     puts e.message
@@ -279,6 +278,6 @@ class Interface
   def choose_item(collection, display_message)
     puts display_message
     view_collection(collection)
-    item_num = gets.to_i - 1
+    gets.to_i - 1
   end
 end

@@ -96,7 +96,7 @@ class Train
   end
 
   def previous_station_number
-    @current_station_number - 1 unless @current_station_number == 0
+    @current_station_number - 1 unless @current_station_number.zero?
   end
 
   def vagon_class
