@@ -8,6 +8,6 @@ class PassengerTrain < Train
   end
 
   def to_s
-    "№ #{self.number}. Тип - Пассажирский. Кол-во вагонов: #{vagons.size}"
+    "№ #{number}. Тип - Пассажирский. Кол-во вагонов: #{vagons.size}"
   end
 end

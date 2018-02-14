@@ -79,7 +79,7 @@ class Train
   def valid?
     validate!
     true
-  rescue
+  rescue StandardError
     false
   end
 
@@ -104,10 +104,10 @@ class Train
   end
 
   def valid_vagon_type?(vagon)
-    vagon.kind_of?(vagon_class)
+    vagon.is_a?(vagon_class)
   end
 
   def validate!
-    raise "Неверный формат номера поезда!" if number !~ NUM_PATTERN
+    raise 'Неверный формат номера поезда!' if number !~ NUM_PATTERN
   end
 end

@@ -26,13 +26,13 @@ class Route
   def valid?
     validate!
     true
-  rescue
+  rescue StandardError
     false
   end
 
   protected
 
   def validate!
-    raise "В маршруте должно быть минимум 2 станций" if stations.size < 2
+    raise 'В маршруте должно быть минимум 2 станций' if stations.size < 2
   end
 end

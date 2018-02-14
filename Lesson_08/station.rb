@@ -38,7 +38,7 @@ class Station
   def valid?
     validate!
     true
-  rescue
+  rescue StandardError
     false
   end
 
@@ -51,6 +51,6 @@ class Station
   protected
 
   def validate!
-    raise "Длина имени станции должна быть не менее 3 символов" if name.length < 3
+    raise 'Длина имени станции должна быть не менее 3 символов' if name.length < 3
   end
 end

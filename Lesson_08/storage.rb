@@ -6,11 +6,11 @@ require_relative 'passenger_vagon'
 require_relative 'cargo_vagon'
 
 class Storage
-  TRAIN_TYPES = [PassengerTrain, CargoTrain]
+  TRAIN_TYPES = [PassengerTrain, CargoTrain].freeze
 
   attr_reader :stations, :routes, :trains
 
-  def initialize()
+  def initialize
     @stations = []
     @routes = []
     @trains = []
