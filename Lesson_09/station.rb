@@ -1,9 +1,16 @@
 require_relative 'instance_counter'
+require_relative 'validation'
+require_relative 'accessors'
 
 class Station
   include InstanceCounter
+  include Validation
+  extend Accessors
 
-  attr_reader :name, :trains
+  # attr_reader :name, :trains
+  attr_accessor_with_history :name, :trains
+
+  validate :name, :presence
 
   @@stations = []
 
@@ -35,13 +42,6 @@ class Station
     @name
   end
 
-  def valid?
-    validate!
-    true
-  rescue StandardError
-    false
-  end
-
   def each_train
     trains.each.with_index(1) do |item, index|
       yield(item, index)
@@ -51,6 +51,7 @@ class Station
   protected
 
   def validate!
+    super
     raise 'Длина имени станции должна быть не менее 3 символов' if name.length < 3
   end
 end

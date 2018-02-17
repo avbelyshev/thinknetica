@@ -1,13 +1,18 @@
 require_relative 'manufacturer'
 require_relative 'instance_counter'
+require_relative 'validation'
 
 class Train
   include Manufacturer
   include InstanceCounter
+  include Validation
 
   NUM_PATTERN = /^[a-z\d]{3}-?[a-z\d]{2}$/i
 
   attr_reader :number, :vagons, :speed, :route, :current_station_number
+
+  validate :number, :presence
+  validate :number, :format, NUM_PATTERN
 
   @@instances = {}
 
@@ -76,13 +81,6 @@ class Train
     @route.stations[previous_station_number]
   end
 
-  def valid?
-    validate!
-    true
-  rescue StandardError
-    false
-  end
-
   def each_vagon
     vagons.each.with_index(1) do |item, index|
       yield(item, index)
@@ -105,9 +103,5 @@ class Train
 
   def valid_vagon_type?(vagon)
     vagon.is_a?(vagon_class)
-  end
-
-  def validate!
-    raise 'Неверный формат номера поезда!' if number !~ NUM_PATTERN
   end
 end

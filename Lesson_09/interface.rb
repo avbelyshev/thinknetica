@@ -68,6 +68,7 @@ class Interface
     storage.create_station(station_name)
   rescue RuntimeError => e
     puts e.message
+    retry
   end
 
   def create_train

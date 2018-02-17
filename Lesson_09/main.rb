@@ -23,6 +23,10 @@ storage.add_vagon_to_train(0, 100)
 storage.add_vagon_to_train(0, 120)
 storage.add_vagon_to_train(1, 500)
 storage.add_vagon_to_train(1, 700)
+st = storage.stations.last
+st.name = 'station № 66'
+st.name = 'station № 77'
+puts st.name_history.to_s
 
 interface = Interface.new(storage)
 
